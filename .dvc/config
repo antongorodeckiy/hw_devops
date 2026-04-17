@@ -1,9 +1,4 @@
 [core]
     remote = dagshub
-['remote "gdrive"']
-    url = gdrive://1m-lPwCRwiwNf6NluVgIBPA08lMppOImo
-    gdrive_acknowledge_abuse = true
-    gdrive_client_id = 624347538382-gbhvf72lqglcd9rh14cku3gjcposhu1a.apps.googleusercontent.com
-    gdrive_client_secret = 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
 ['remote "dagshub"']
     url = https://dagshub.com/antongorodeckiy/hw_devops.dvc
