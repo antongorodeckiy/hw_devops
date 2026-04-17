@@ -2,7 +2,7 @@ import io
 import configparser
 import numpy as np
 import joblib
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from PIL import Image
 from skimage.feature import hog
 from skimage.color import rgb2gray
@@ -66,6 +66,11 @@ def predict():
         "label": label,
         "confidence": round(float(max(proba)), 3)
     })
+
+
+@app.route("/", methods=["GET"])
+def index():
+    return render_template("index.html")
 
 
 @app.route("/health", methods=["GET"])
