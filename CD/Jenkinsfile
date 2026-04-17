@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        IMAGE_NAME = "nikitaplastinkin/hw_devops"
+        IMAGE_TAG = "latest"
+        CONTAINER_NAME = "hw_devops_api"
+    }
+
+    stages {
+        stage('Pull Image') {
+            steps {
+                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                sh "docker pull ${IMAGE_NAME}:${IMAGE_TAG}"
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh "docker stop ${CONTAINER_NAME} || true"
+                sh "docker rm ${CONTAINER_NAME} || true"
+                sh """
+                    docker run -d \
+                        --name ${CONTAINER_NAME} \
+                        -p 5000:5000 \
+                        -v \$(pwd)/experiments:/app/experiments \
+                        ${IMAGE_NAME}:${IMAGE_TAG}
+                """
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sh "sleep 5"
+                sh "curl -f http://localhost:5000/health"
+            }
+        }
+
+        stage('Functional Tests') {
+            steps {
+                sh """
+                    docker run --rm \
+                        --network host \
+                        -v \$(pwd)/experiments:/app/experiments \
+                        ${IMAGE_NAME}:${IMAGE_TAG} \
+                        python src/predict.py
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            sh "docker logout"
+        }
+        failure {
+            sh "docker stop ${CONTAINER_NAME} || true"
+            sh "docker rm ${CONTAINER_NAME} || true"
+            echo "Deployment failed"
+        }
+        success {
+            echo "Deployed successfully"
+        }
+    }
+}

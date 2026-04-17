@@ -1,0 +1,32 @@
+services:
+  preprocess:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./experiments:/app/experiments
+    command: python src/preprocess.py
+
+  train:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./experiments:/app/experiments
+    command: python src/train.py
+    depends_on:
+      - preprocess
+
+  predict:
+    build: .
+    volumes:
+      - ./experiments:/app/experiments
+    command: python src/predict.py
+    depends_on:
+      - train
+
+  api:
+    build: .
+    volumes:
+      - ./experiments:/app/experiments
+    ports:
+      - "5000:5000"
+    command: python src/api.py
