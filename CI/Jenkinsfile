@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        IMAGE_NAME = "nikitaplastinkin/hw_devops"
+        IMAGE_TAG = "latest"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh """
+                    docker run --rm \
+                        -v \$(pwd)/experiments:/app/experiments \
+                        ${IMAGE_NAME}:${IMAGE_TAG} \
+                        python -m pytest src/unit_tests/ -v
+                """
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+            }
+        }
+    }
+
+    post {
+        always {
+            sh "docker logout"
+        }
+        failure {
+            echo "Pipeline failed"
+        }
+        success {
+            echo "Image pushed: ${IMAGE_NAME}:${IMAGE_TAG}"
+        }
+    }
+}
