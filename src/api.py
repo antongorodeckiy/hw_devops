@@ -45,7 +45,14 @@ def predict():
         return jsonify({"error": "No file provided"}), 400
 
     file = request.files["file"]
-    img = Image.open(io.BytesIO(file.read())).convert("RGB").resize((IMAGE_SIZE, IMAGE_SIZE))
+
+    try:
+        if file.filename == "":
+            raise ValueError("Empty file")
+        img = Image.open(io.BytesIO(file.read())).convert("RGB").resize((IMAGE_SIZE, IMAGE_SIZE))
+    except Exception as e:
+        return jsonify({"error": f"Invalid image file: {e}"}), 400
+
     img_gray = rgb2gray(np.array(img))
     features = hog(
         img_gray,
