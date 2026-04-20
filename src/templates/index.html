@@ -19,6 +19,7 @@
         .result span { font-size: 48px; display: block; margin-bottom: 8px; }
         .confidence { font-size: 14px; color: #666; font-weight: normal; margin-top: 4px; }
         .loading { display: none; text-align: center; margin-top: 20px; color: #666; }
+        .version { position: fixed; bottom: 12px; right: 16px; font-size: 12px; color: #aaa; }
     </style>
 </head>
 <body>
@@ -37,6 +38,8 @@
             <div class="confidence" id="confidence"></div>
         </div>
     </div>
+
+    <div class="version">ver. 1.0.0</div>
 
     <script>
         document.getElementById('fileInput').addEventListener('change', function(e) {
