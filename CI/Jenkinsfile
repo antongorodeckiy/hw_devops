@@ -24,7 +24,7 @@ pipeline {
             steps {
                 sh """
                     docker run --rm \
-                        -v \$(pwd)/experiments:/app/experiments \
+                        -v /Users/nikitadasha/devops/hw_devops/experiments:/app/experiments \
                         ${IMAGE_NAME}:${IMAGE_TAG} \
                         python -m pytest src/unit_tests/ -v
                 """
