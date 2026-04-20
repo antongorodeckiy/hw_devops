@@ -1,11 +1,21 @@
 import sys
 import os
+import io
+import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pytest
+import numpy as np
+from PIL import Image
 from api import app
 
-TEST_IMAGE = os.path.join("data", "train", "cat.0.jpg")
+
+def make_test_image_bytes():
+    img = Image.fromarray(np.random.randint(0, 255, (64, 64, 3), dtype=np.uint8))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG")
+    buf.seek(0)
+    return buf
 
 
 @pytest.fixture
@@ -22,22 +32,19 @@ def test_health(client):
 
 
 def test_predict_returns_200(client):
-    with open(TEST_IMAGE, "rb") as f:
-        response = client.post("/predict", data={"file": f})
+    response = client.post("/predict", data={"file": (make_test_image_bytes(), "test.jpg")})
     assert response.status_code == 200
 
 
 def test_predict_response_structure(client):
-    with open(TEST_IMAGE, "rb") as f:
-        response = client.post("/predict", data={"file": f})
+    response = client.post("/predict", data={"file": (make_test_image_bytes(), "test.jpg")})
     data = response.get_json()
     assert "label" in data
     assert "confidence" in data
 
 
 def test_predict_label_valid(client):
-    with open(TEST_IMAGE, "rb") as f:
-        response = client.post("/predict", data={"file": f})
+    response = client.post("/predict", data={"file": (make_test_image_bytes(), "test.jpg")})
     label = response.get_json()["label"]
     assert label in {"cat", "dog"}
 
