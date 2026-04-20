@@ -24,7 +24,7 @@ pipeline {
                     docker run -d \
                         --name ${CONTAINER_NAME} \
                         -p 5000:5000 \
-                        -v \$(pwd)/experiments:/app/experiments \
+                        -v /Users/nikitadasha/devops/hw_devops/experiments:/app/experiments \
                         ${IMAGE_NAME}:${IMAGE_TAG}
                 """
             }
@@ -42,7 +42,7 @@ pipeline {
                 sh """
                     docker run --rm \
                         --network host \
-                        -v \$(pwd)/experiments:/app/experiments \
+                        -v /Users/nikitadasha/devops/hw_devops/experiments:/app/experiments \
                         ${IMAGE_NAME}:${IMAGE_TAG} \
                         python src/predict.py
                 """
