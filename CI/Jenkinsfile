@@ -20,17 +20,6 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                sh """
-                    docker run --rm \
-                        -v /Users/nikitadasha/devops/hw_devops/experiments:/app/experiments \
-                        ${IMAGE_NAME}:${IMAGE_TAG} \
-                        python -m pytest src/unit_tests/ -v
-                """
-            }
-        }
-
         stage('Push to DockerHub') {
             steps {
                 sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"

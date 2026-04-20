@@ -16,6 +16,17 @@ pipeline {
             }
         }
 
+        stage('Run Tests') {
+            steps {
+                sh """
+                    docker run --rm \
+                        -v /Users/nikitadasha/devops/hw_devops/experiments:/app/experiments \
+                        ${IMAGE_NAME}:${IMAGE_TAG} \
+                        python -m pytest src/unit_tests/ -v
+                """
+            }
+        }
+
         stage('Deploy') {
             steps {
                 sh "docker stop ${CONTAINER_NAME} || true"
